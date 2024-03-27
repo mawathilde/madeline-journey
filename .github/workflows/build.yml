@@ -7,8 +7,9 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build-api:
     runs-on: ubuntu-latest
+    working-directory: ./api
     steps:
     - uses: actions/checkout@v3
 
@@ -16,9 +17,6 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: 1.21
-
-    - name: cd into the directory
-      run: cd api
 
     - name: Verify dependencies
       run: go mod verify
