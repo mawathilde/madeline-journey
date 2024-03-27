@@ -1,0 +1,25 @@
+version: '3.3'
+services:
+  api:
+    build: ./api
+    ports:
+      - 8080:8080
+    environment:
+      - DB=postgresql://madeline:madeline@db/madeline
+    depends_on:
+      - db
+  db:
+    restart: unless-stopped
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_PASSWORD: madeline
+      POSTGRES_USER: madeline
+      POSTGRES_DB: madeline
+      TZ: Europe/Paris
+      PGTZ: Europe/Paris
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+    driver: local

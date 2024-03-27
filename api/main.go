@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	db.LoadEnvVariables()
+	//db.LoadEnvVariables()
 	db.ConnectToDb()
 	db.SyncDatabase()
 }
