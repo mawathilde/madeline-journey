@@ -31,26 +31,34 @@ func RequireAuth(c *gin.Context) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		// Chec k the expiry date
-		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			c.AbortWithStatus(http.StatusUnauthorized)
+	if token != nil && token.Valid {
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			// Check the expiry date
+			if float64(time.Now().Unix()) > claims["exp"].(float64) {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
+			}
+
+			// Find the user with token Subject
+			var user models.User
+			db.DB.First(&user, claims["sub"])
+
+			if user.ID == 0 {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Valid token but user not found, wait what?"})
+			}
+
+			// Attach the request
+			c.Set("user", user)
+			c.Set("claims", claims)
+
+			// Continue
+			c.Next()
+		} else {
+			// Abort with a message
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		}
-
-		// Find the user with token Subject
-		var user models.User
-		db.DB.First(&user, claims["sub"])
-
-		if user.ID == 0 {
-			c.AbortWithStatus(http.StatusUnauthorized)
-		}
-
-		// Attach the request
-		c.Set("user", user)
-
-		//Continue
-		c.Next()
 	} else {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		// Abort with a message
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid token"})
 	}
+
 }

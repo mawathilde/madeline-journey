@@ -6,6 +6,8 @@ services:
       - 8080:8080
     environment:
       - DB=postgresql://madeline:madeline@db/madeline-journey
+      - JWT_SECRET=madeline-is-the-best-and-its-a-super-secret
+    restart: unless-stopped
     depends_on:
       - db
   db:

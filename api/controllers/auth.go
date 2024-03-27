@@ -49,7 +49,7 @@ func Register(c *gin.Context) {
 	}
 
 	// Respond
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusOK, gin.H{"message": "User created, please login."})
 }
 
 func Login(c *gin.Context) {
@@ -92,7 +92,7 @@ func Login(c *gin.Context) {
 	// Generate a JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
@@ -107,17 +107,19 @@ func Login(c *gin.Context) {
 
 	// Respond
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+	c.SetCookie("Authorization", tokenString, 3600*24, "", "", false, true)
 
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusOK, gin.H{
+		"token":   tokenString,
+		"expires": time.Now().Add(time.Hour * 24).Unix(),
+	})
 }
 
 func Validate(c *gin.Context) {
-	user, _ := c.Get("user")
-
-	// user.(models.User).Email    -->   to access specific data
+	claims, _ := c.Get("claims")
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": user,
+		"message": "You are authenticated!",
+		"claims":  claims,
 	})
 }

@@ -15,15 +15,15 @@ func init() {
 }
 
 func main() {
-	app := gin.Default()
+	r := gin.Default()
 
-	api := app.Group("/api")
+	api := r.Group("/api")
 	api.Use(middleware.RequireAuth)
 
-	app.POST("api/auth/register", controllers.Register)
-	app.POST("api/auth/login", controllers.Login)
+	r.POST("api/auth/register", controllers.Register)
+	r.POST("api/auth/login", controllers.Login)
 
 	api.GET("auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	app.Run()
+	r.Run()
 }
