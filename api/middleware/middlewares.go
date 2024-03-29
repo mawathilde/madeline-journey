@@ -17,8 +17,13 @@ func RequireAuth(c *gin.Context) {
 	tokenString, err := c.Cookie("Authorization")
 
 	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
+		// get bearer token from header
+		tokenString = c.GetHeader("Authorization")
+		tokenString = tokenString[7:]
+		if tokenString == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
+			return
+		}
 	}
 
 	// Decode/validate it
