@@ -60,7 +60,7 @@ func TestAuthenticatedWithValidTokenButUserNotFound(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
 
-	token, _ := jwtUtils.GenerateToken(models.User{Email: "", Password: ""})
+	token, _ := jwtUtils.GenerateToken(models.User{Email: "madeline@celeste.game", Password: "bird"})
 
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp := httptest.NewRecorder()

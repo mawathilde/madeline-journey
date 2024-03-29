@@ -19,10 +19,12 @@ func RequireAuth(c *gin.Context) {
 	if err != nil {
 		// get bearer token from header
 		tokenString = c.GetHeader("Authorization")
-		tokenString = tokenString[7:]
 		if tokenString == "" {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
 			return
+		} else {
+			// Remove the bearer prefix
+			tokenString = tokenString[7:]
 		}
 	}
 
