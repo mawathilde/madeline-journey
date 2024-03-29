@@ -11,12 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:12
+        image: postgres
         ports: ['5432:5432']
         env:
-          POSTGRES_USER: madeline
-          POSTGRES_PASSWORD: madeline
-          POSTGRES_DB: madeline-journey
+          POSTGRES_PASSWORD: postgres
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -42,5 +40,5 @@ jobs:
     - name: Run tests
       run: go test -race -vet=off ./test
       env:
-        DATABASE_URL: postgres://madeline:madeline@postgres:5432/madeline-journey
+        DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
         JWT_SECRET: secret
