@@ -18,6 +18,7 @@ func RequireAuth(c *gin.Context) {
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
+		return
 	}
 
 	// Decode/validate it
@@ -36,6 +37,7 @@ func RequireAuth(c *gin.Context) {
 			// Check the expiry date
 			if float64(time.Now().Unix()) > claims["exp"].(float64) {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
+				return
 			}
 
 			// Find the user with token Subject
@@ -44,6 +46,7 @@ func RequireAuth(c *gin.Context) {
 
 			if user.ID == 0 {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Valid token but user not found, wait what?"})
+				return
 			}
 
 			// Attach the request

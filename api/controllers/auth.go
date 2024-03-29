@@ -2,13 +2,12 @@ package controllers
 
 import (
 	"madeline-journey/api/db"
+	"madeline-journey/api/jwtUtils"
 	"madeline-journey/api/models"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -90,13 +89,7 @@ func Login(c *gin.Context) {
 	}
 
 	// Generate a JWT token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-	})
-
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	tokenString, err := jwtUtils.GenerateToken(user)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
