@@ -68,7 +68,7 @@ func RequireAuth(c *gin.Context) {
 		}
 	} else {
 		// Abort with a message
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid token"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 	}
 
 }
