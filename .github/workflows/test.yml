@@ -14,7 +14,10 @@ jobs:
         image: postgres
         ports: ['5432:5432']
         env:
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_USER: madeline
+          POSTGRES_PASSWORD: madeline
+          POSTGRES_DB: madeline
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -40,5 +43,5 @@ jobs:
     - name: Run tests
       run: go test -race -vet=off ./test
       env:
-        DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+        DATABASE_URL: postgres://madeline:madeline@localhost/madeline
         JWT_SECRET: secret
