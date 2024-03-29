@@ -42,5 +42,5 @@ jobs:
     - name: Run tests
       run: go test -race -vet=off ./test
       env:
-        DB: postgres://madeline:madeline@postgres:5432/madeline-journey
+        DB: postgres://madeline:madeline@localhost:5432/madeline-journey
         JWT_SECRET: secret
