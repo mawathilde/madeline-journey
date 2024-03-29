@@ -14,8 +14,8 @@ import (
 func Register(c *gin.Context) {
 	// Get the email/pass off req Body
 	var body struct {
-		Email    string
-		Password string
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	if c.Bind(&body) != nil {
@@ -53,12 +53,9 @@ func Register(c *gin.Context) {
 
 func Login(c *gin.Context) {
 	// Get email & pass off req body
-	var body struct {
-		Email    string
-		Password string
-	}
+	var loginRequest models.LoginRequest
 
-	if c.Bind(&body) != nil {
+	if c.Bind(&loginRequest) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
 		})
@@ -69,7 +66,7 @@ func Login(c *gin.Context) {
 	// Look up for requested user
 	var user models.User
 
-	db.DB.First(&user, "email = ?", body.Email)
+	db.DB.First(&user, "email = ?", loginRequest.Email)
 
 	if user.ID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -79,7 +76,7 @@ func Login(c *gin.Context) {
 	}
 
 	// Compare sent in password with saved users password
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -102,10 +99,9 @@ func Login(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, 3600*24, "", "", false, true)
 
-	c.JSON(http.StatusOK, gin.H{
-		"token":   tokenString,
-		"expires": time.Now().Add(time.Hour * 24).Unix(),
-	})
+	tokenResponse := models.TokenResponse{Token: tokenString, ExpiresAt: time.Now().Add(time.Hour * 24).Unix()}
+
+	c.JSON(http.StatusOK, tokenResponse)
 }
 
 func Validate(c *gin.Context) {
