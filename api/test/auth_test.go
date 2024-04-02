@@ -135,7 +135,10 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	json.NewDecoder(resp.Body).Decode(&tokenResponse)
 	assert.NotEmpty(t, tokenResponse.Token)
 
-	//TODO: Validate token here
+	// Validate token locally
+	token, err := jwtUtils.ParseToken(tokenResponse.Token)
+	assert.Nil(t, err)
+	assert.NotNil(t, token)
 
 	// Validate user
 	req, _ = http.NewRequest("GET", "/api/auth/validate", nil)
