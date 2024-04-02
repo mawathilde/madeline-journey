@@ -5,6 +5,7 @@ import (
 	"madeline-journey/api/jwtUtils"
 	"madeline-journey/api/models"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,7 @@ import (
 func Register(c *gin.Context) {
 	// Get the email/pass off req Body
 	var body struct {
+		Username string `json:"username"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
@@ -23,6 +25,26 @@ func Register(c *gin.Context) {
 			"error": "Failed to read body",
 		})
 
+		return
+	}
+
+	// check if the body is valid
+	if body.Username == "" || body.Email == "" || body.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid body",
+		})
+		return
+	}
+	if !strings.Contains(body.Email, "@") {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid email",
+		})
+		return
+	}
+	if len(body.Password) < 6 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Password must be at least 6 characters",
+		})
 		return
 	}
 
@@ -37,7 +59,11 @@ func Register(c *gin.Context) {
 	}
 
 	// Create the user
-	user := models.User{Email: body.Email, Password: string(hash)}
+	user := models.User{
+		Username: body.Username,
+		Email:    body.Email,
+		Password: string(hash),
+	}
 
 	result := db.DB.Create(&user)
 
@@ -45,10 +71,10 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to create user.",
 		})
+	} else {
+		// Respond
+		c.JSON(http.StatusOK, gin.H{"message": "User created, please login."})
 	}
-
-	// Respond
-	c.JSON(http.StatusOK, gin.H{"message": "User created, please login."})
 }
 
 func Login(c *gin.Context) {
@@ -66,11 +92,11 @@ func Login(c *gin.Context) {
 	// Look up for requested user
 	var user models.User
 
-	db.DB.First(&user, "email = ?", loginRequest.Email)
+	db.DB.First(&user, "username = ?", loginRequest.Username)
 
 	if user.ID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid email or password",
+			"error": "Invalid username or password",
 		})
 		return
 	}
@@ -105,10 +131,10 @@ func Login(c *gin.Context) {
 }
 
 func Validate(c *gin.Context) {
-	claims, _ := c.Get("claims")
+	user, _ := c.Get("user")
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "You are authenticated!",
-		"claims":  claims,
+		"user":    user,
 	})
 }

@@ -11,10 +11,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/brianvoe/gofakeit/v7"
 )
 
 func TestMain(m *testing.M) {
@@ -79,7 +80,7 @@ func TestAuthenticatedWithValidTokenAndUserFound(t *testing.T) {
 
 	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	user := models.User{Email: time.Now().GoString(), Password: "bird"}
+	user := models.User{Email: gofakeit.Email(), Username: gofakeit.Username(), Password: gofakeit.Password(true, true, true, true, false, 14)}
 
 	db.DB.Create(&user)
 
@@ -108,10 +109,18 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	router.POST("/api/auth/login", controllers.Login)
 	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	user := models.User{Email: time.Now().GoString(), Password: "bird"}
+	type RegisterBody struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	user := models.User{Email: gofakeit.Email(), Username: gofakeit.Username(), Password: gofakeit.Password(true, true, true, true, false, 14)}
+
+	registerBody := RegisterBody{Username: user.Username, Email: user.Email, Password: user.Password}
 
 	// Register user
-	jsonValue, _ := json.Marshal(user)
+	jsonValue, _ := json.Marshal(registerBody)
 	req, _ := http.NewRequest("POST", "/api/auth/register", bytes.NewBuffer(jsonValue))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -120,9 +129,11 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, resp.Code)
 	var userFromDb models.User
-	db.DB.Where("email = ?", user.Email).First(&userFromDb)
-	assert.Equal(t, user.Email, userFromDb.Email)
+	db.DB.Where("username = ?", user.Username).First(&userFromDb)
+	assert.Equal(t, user.Username, userFromDb.Username)
 
+	loginRequest := models.LoginRequest{Username: user.Username, Password: user.Password}
+	jsonValue, _ = json.Marshal(loginRequest)
 	// Login user
 	req, _ = http.NewRequest("POST", "/api/auth/login", bytes.NewBuffer(jsonValue))
 	req.Header.Set("Content-Type", "application/json")
