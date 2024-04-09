@@ -1,21 +1,25 @@
 {
-  "name": "madeline-journey-front",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "vite --port 8000",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
-    "prettier": "^3.2.3",
-    "vite": "^5.0.11"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3"
-  }
+	"name": "madeline-journey-front",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "vite --port 8000",
+		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-react": "^4.2.1",
+		"prettier": "3.2.5",
+		"sass": "^1.74.1",
+		"vite": "^5.0.11"
+	},
+	"dependencies": {
+		"bulma": "^1.0.0",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^6.22.3",
+		"sass-loader": "^14.1.1"
+	}
 }
