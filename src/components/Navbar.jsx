@@ -13,11 +13,7 @@ export default function Navbar() {
 			</div>
 
 			<div className="navbar-menu">
-				<div className="navbar-start">
-					<a className="navbar-item" href="/berries">
-						Berries
-					</a>
-				</div>
+				<div className="navbar-start"></div>
 			</div>
 			<div className="navbar-end">
 				<div className="navbar-item">

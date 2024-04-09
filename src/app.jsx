@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import './style/style.scss';
 import Footer from './components/Footer';
 import Home from './pages/Home';
+import Login from './pages/Login';
 
 const root = createRoot(document.getElementById('root'));
 
@@ -15,6 +16,8 @@ root.render(
 		<Navbar />
 		<Routes>
 			<Route path="/" element={<Home />} />
+
+			<Route path="/login" element={<Login />} />
 		</Routes>
 		<Footer />
 	</BrowserRouter>

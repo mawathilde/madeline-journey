@@ -1,7 +1,7 @@
 export default function Footer() {
 	return (
-		<footer class="footer">
-			<div class="content has-text-centered">
+		<footer className="footer">
+			<div className="content has-text-centered">
 				<p>
 					<strong>Madeline's Journey</strong> by{' '}
 					<a href="https://github.com/mawathilde">mawathilde</a>. Source code
