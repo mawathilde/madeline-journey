@@ -1,4 +1,7 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
+
+import { faMoon } from '@fortawesome/free-solid-svg-icons';
 
 export default function Navbar() {
 	return (
@@ -14,6 +17,11 @@ export default function Navbar() {
 					<a className="navbar-item" href="/berries">
 						Berries
 					</a>
+				</div>
+			</div>
+			<div className="navbar-end">
+				<div className="navbar-item">
+					<FontAwesomeIcon icon={faMoon} size="xl" color="#9b59b6" />
 				</div>
 			</div>
 		</nav>
