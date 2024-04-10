@@ -4,6 +4,9 @@ import sass from 'sass'
 /** @type {import('vite').UserConfig} */
 export default {
 	plugins: [react()],
+	server: {
+		host: true,
+	},
 	css: {
 		preprocessorOptions: {
 			scss: {

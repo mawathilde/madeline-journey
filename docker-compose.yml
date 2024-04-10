@@ -11,7 +11,7 @@ services:
     volumes:
       - caddy-config:/config
       - caddy-data:/data
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./tools/docker/caddy/Caddyfile:/etc/caddy/Caddyfile
       - ./front/dist:/usr/share/caddy
   api:
     build: ./api

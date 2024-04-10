@@ -10,7 +10,7 @@ services:
     volumes:
       - caddy-config:/config
       - caddy-data:/data
-      - ./Caddyfile.dev:/etc/caddy/Caddyfile:ro
+      - ./tools/docker/caddy/Caddyfile.dev:/etc/caddy/Caddyfile:ro
     depends_on:
       - api
       - front
@@ -26,12 +26,13 @@ services:
     depends_on:
       - db
   front:
-    image: node:latest
+    build:
+      context: ./tools/docker/node
     restart: unless-stopped
-    working_dir: /app
+    command: pnpm run dev
+    working_dir: /usr/src/app
     volumes:
-      - ./front:/app
-    command: 'npm run dev -- --host'
+      - ./front:/usr/src/app
   db:
     restart: unless-stopped
     image: postgres:12-alpine

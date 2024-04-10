@@ -11,10 +11,11 @@ test-api: api/go.sum ## Lance les tests de l'API
 	cd api && go test ./...
 
 run-test-prod: ## Lance l'environnement de développement
-	cd front && npm run build
+	cd front && pnpm run build
 	docker compose up -d
 
 dev: ## Lance l'environnement de développement
+	cd front && pnpm i
 	docker compose -f docker-compose.dev.yml up
 
 rm-dev: ## Arrête l'environnement de développement
