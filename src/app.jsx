@@ -8,17 +8,20 @@ import './style/style.scss';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import { AuthProvider } from './components/AuthContext';
 
 const root = createRoot(document.getElementById('root'));
 
 root.render(
-	<BrowserRouter>
-		<Navbar />
-		<Routes>
-			<Route path="/" element={<Home />} />
+	<AuthProvider>
+		<BrowserRouter>
+			<Navbar />
+			<Routes>
+				<Route path="/" element={<Home />} />
 
-			<Route path="/login" element={<Login />} />
-		</Routes>
-		<Footer />
-	</BrowserRouter>
+				<Route path="/login" element={<Login />} />
+			</Routes>
+			<Footer />
+		</BrowserRouter>
+	</AuthProvider>
 );
