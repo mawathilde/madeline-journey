@@ -2,7 +2,6 @@ name: madeline-journey
 
 services:
   caddy:
-    container_name: caddy
     image: caddy
     restart: always
     ports:
@@ -11,21 +10,34 @@ services:
     volumes:
       - caddy-config:/config
       - caddy-data:/data
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile.dev:/etc/caddy/Caddyfile
       - ./dist:/usr/share/caddy
+    depends_on:
+      - api
+      - front
   api:
-    build: ./api
+    image: cosmtrek/air
+    volumes:
+      - ./api:/go/src/app
     environment:
       - DB=postgresql://madeline:madeline@db/madeline-journey
       - JWT_SECRET=madeline-is-the-best-and-its-a-super-secret
     restart: unless-stopped
+    working_dir: /go/src/app
     depends_on:
       - db
+  front:
+    image: node:latest
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: 'npm run dev -- --host'
   db:
     restart: unless-stopped
     image: postgres:12-alpine
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U madeline -d madeline-journey']
+      test: ['CMD-SHELL', 'pgsql -U madeline -d madeline-journey']
       interval: 30s
       timeout: 60s
       retries: 5

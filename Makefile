@@ -12,7 +12,10 @@ test-api: api/go.sum ## Lance les tests de l'API
 
 run-test-prod: ## Lance l'environnement de développement
 	npm run build
-	docker-compose up -d
+	docker compose up -d
+
+dev: ## Lance l'environnement de développement
+	docker compose -f docker-compose.dev.yml up
 
 # -----------------------------------
 # Dépendances
