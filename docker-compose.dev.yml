@@ -1,4 +1,4 @@
-name: madeline-journey
+name: madeline-journey-dev
 
 services:
   caddy:
