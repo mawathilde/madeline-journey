@@ -16,15 +16,21 @@ func init() {
 	db.SyncDatabase()
 }
 
+func corsConfig() cors.Config {
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowedMethods = []string{"POST", "GET", "PUT", "OPTIONS"}
+	config.AllowedHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma"}
+	config.ExposedHeaders = []string{"Content-Length"}
+	config.AllowCredentials = true
+	config.MaxAge = 12 * time.Hour
+
+	return config
+}
+
 func main() {
 	r := gin.Default()
-	r.Use(cors.New(cors.Config{
-		AllowedOrigins:   []string{"http://localhost:8080"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Origin", "Content-Type", "Authorization"},
-		AllowCredentials: true,
-		MaxAge:           time.Hour,
-	}))
+	r.Use(cors.New(corsConfig()))
 
 	api := r.Group("/")
 	api.Use(middleware.RequireAuth)
