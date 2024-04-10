@@ -12,7 +12,7 @@ services:
       - caddy-config:/config
       - caddy-data:/data
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./dist:/usr/share/caddy
+      - ./front/dist:/usr/share/caddy
   api:
     build: ./api
     environment:
