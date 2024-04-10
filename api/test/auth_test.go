@@ -34,9 +34,9 @@ func TestNotAuthenticated(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := SetUpRouter()
 
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 	resp := httptest.NewRecorder()
 
 	router.ServeHTTP(resp, req)
@@ -47,9 +47,9 @@ func TestNotAuthenticated(t *testing.T) {
 func TestAuthenticatedWithInvalidToken(t *testing.T) {
 	router := SetUpRouter()
 
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 	req.Header.Set("Authorization", "Bearer invalid_token")
 	resp := httptest.NewRecorder()
 
@@ -61,9 +61,9 @@ func TestAuthenticatedWithInvalidToken(t *testing.T) {
 func TestAuthenticatedWithValidTokenButUserNotFound(t *testing.T) {
 	router := SetUpRouter()
 
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 
 	token, _ := jwtUtils.GenerateToken(models.User{Email: "madeline@celeste.game", Password: "bird"})
 
@@ -78,7 +78,7 @@ func TestAuthenticatedWithValidTokenButUserNotFound(t *testing.T) {
 func TestAuthenticatedWithValidTokenAndUserFound(t *testing.T) {
 	router := SetUpRouter()
 
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
 	user := models.User{Email: gofakeit.Email(), Username: gofakeit.Username(), Password: gofakeit.Password(true, true, true, true, false, 14)}
 
@@ -88,7 +88,7 @@ func TestAuthenticatedWithValidTokenAndUserFound(t *testing.T) {
 
 	print(user.ID)
 
-	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp := httptest.NewRecorder()
 
@@ -105,9 +105,9 @@ func TestAuthenticatedWithValidTokenAndUserFound(t *testing.T) {
 func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	router := SetUpRouter()
 
-	router.POST("/api/auth/register", controllers.Register)
-	router.POST("/api/auth/login", controllers.Login)
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.POST("/auth/register", controllers.Register)
+	router.POST("/auth/login", controllers.Login)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
 	type RegisterBody struct {
 		Username string `json:"username"`
@@ -121,7 +121,7 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 
 	// Register user
 	jsonValue, _ := json.Marshal(registerBody)
-	req, _ := http.NewRequest("POST", "/api/auth/register", bytes.NewBuffer(jsonValue))
+	req, _ := http.NewRequest("POST", "/auth/register", bytes.NewBuffer(jsonValue))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp := httptest.NewRecorder()
@@ -135,7 +135,7 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	loginRequest := models.LoginRequest{Username: user.Username, Password: user.Password}
 	jsonValue, _ = json.Marshal(loginRequest)
 	// Login user
-	req, _ = http.NewRequest("POST", "/api/auth/login", bytes.NewBuffer(jsonValue))
+	req, _ = http.NewRequest("POST", "/auth/login", bytes.NewBuffer(jsonValue))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp = httptest.NewRecorder()
@@ -152,7 +152,7 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	assert.NotNil(t, token)
 
 	// Validate user
-	req, _ = http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ = http.NewRequest("GET", "/auth/validate", nil)
 	req.Header.Set("Cookie", resp.Header().Get("Set-Cookie")) // Copy cookie from login response
 
 	resp = httptest.NewRecorder()
