@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"madeline-journey/api/db"
-	"madeline-journey/api/jwtUtils"
 	"madeline-journey/api/models"
+	"madeline-journey/api/utils"
 	"net/http"
 	"time"
 
@@ -27,7 +27,7 @@ func RequireAuth(c *gin.Context) {
 	}
 
 	// Decode/validate it
-	claims, err := jwtUtils.ParseToken(tokenString)
+	claims, err := utils.ParseToken(tokenString)
 
 	if err == nil && claims != nil {
 		// Check the expiry date

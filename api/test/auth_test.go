@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"madeline-journey/api/controllers"
 	"madeline-journey/api/db"
-	"madeline-journey/api/jwtUtils"
 	"madeline-journey/api/middleware"
 	"madeline-journey/api/models"
+	"madeline-journey/api/utils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -65,7 +65,7 @@ func TestAuthenticatedWithValidTokenButUserNotFound(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 
-	token, _ := jwtUtils.GenerateToken(models.User{Email: "madeline@celeste.game", Password: "bird"})
+	token, _ := utils.GenerateToken(models.User{Email: "madeline@celeste.game", Password: "bird"})
 
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp := httptest.NewRecorder()
@@ -84,7 +84,7 @@ func TestAuthenticatedWithValidTokenAndUserFound(t *testing.T) {
 
 	db.DB.Create(&user)
 
-	token, _ := jwtUtils.GenerateToken(user)
+	token, _ := utils.GenerateToken(user)
 
 	print(user.ID)
 
@@ -147,7 +147,7 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	assert.NotEmpty(t, tokenResponse.Token)
 
 	// Validate token locally
-	token, err := jwtUtils.ParseToken(tokenResponse.Token)
+	token, err := utils.ParseToken(tokenResponse.Token)
 	assert.Nil(t, err)
 	assert.NotNil(t, token)
 

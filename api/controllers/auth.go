@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"madeline-journey/api/db"
-	"madeline-journey/api/jwtUtils"
 	"madeline-journey/api/models"
+	"madeline-journey/api/utils"
 	"net/http"
 	"strings"
 	"time"
@@ -53,7 +53,7 @@ func Register(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to hash password.",
+			"error": "Internal error. Failed to hash password.",
 		})
 		return
 	}
@@ -69,7 +69,7 @@ func Register(c *gin.Context) {
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create user.",
+			"error": "Username or email already exists.",
 		})
 	} else {
 		// Respond
@@ -111,8 +111,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	if !user.IsVerified {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Please verify your email before logging in. You can request a new verification email by clicking 'Verify my email'",
+		})
+		return
+	}
+
 	// Generate a JWT token
-	tokenString, err := jwtUtils.GenerateToken(user)
+	tokenString, err := utils.GenerateToken(user)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

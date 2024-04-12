@@ -12,7 +12,9 @@ export default function Home() {
 					<Link to="/login" className="button is-primary mr-4">
 						Login
 					</Link>
-					<button className="button is-link">Register</button>
+					<Link to="/register" className="button is-link">
+						Register
+					</Link>
 				</div>
 			</div>
 		</section>

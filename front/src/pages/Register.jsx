@@ -1,4 +1,4 @@
-import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faLock, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useState } from 'react';
@@ -9,36 +9,53 @@ import api from '../utils/api';
 
 export default function Login() {
 	const [username, setUsername] = useState('');
+	const [mail, setMail] = useState('');
 	const [password, setPassword] = useState('');
+	const [repassword, setRepassword] = useState('');
 
 	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState(null);
+
+	const [status, setStatus] = useState(null);
 
 	const { setToken } = useAuth();
 	const navigate = useNavigate();
 
 	const handleSubmit = event => {
 		event.preventDefault();
+
+		if (password !== repassword) {
+			setError('Passwords do not match');
+			return;
+		}
+
 		setLoading(true);
 
 		api
-			.post('auth/login', { username, password })
+			.post('auth/register', { username, email: mail, password })
 			.then(response => {
-				setToken(response.data.token);
-				navigate('/');
+				setUsername('');
+				setMail('');
+				setPassword('');
+				setRepassword('');
+				setStatus({
+					type: 'success',
+					message:
+						'Account created successfully, an email has been sent to you to verify your account.',
+				});
 			})
 			.catch(error => {
 				if (error.response.data) {
-					setError(error.response.data.error);
+					setStatus({ type: 'danger', message: error.response.data.error });
 				} else {
-					setError(
-						'An error occurred. Please check your connection and try again.'
-					);
+					setStatus({
+						type: 'danger',
+						message:
+							'An error occurred. Please check your connection and try again.',
+					});
 				}
 			})
 			.finally(() => {
 				setLoading(false);
-				setPassword('');
 			});
 	};
 
@@ -49,8 +66,8 @@ export default function Login() {
 					<div className="column is-half">
 						<div className="box">
 							<div className="content">
-								<div className="title">Log In</div>
-								<div className="subtitle">Log in to your account</div>
+								<div className="title">Register</div>
+								<div className="subtitle">Create an account</div>
 							</div>
 							<div className="field">
 								<label className="label">Username</label>
@@ -63,6 +80,20 @@ export default function Login() {
 									/>
 									<span className="icon is-small is-left">
 										<FontAwesomeIcon icon={faUser} />
+									</span>
+								</div>
+							</div>
+							<div className="field">
+								<label className="label">E-Mail</label>
+								<div className="control has-icons-left">
+									<input
+										value={mail}
+										onChange={e => setMail(e.target.value)}
+										className="input"
+										type="email"
+									/>
+									<span className="icon is-small is-left">
+										<FontAwesomeIcon icon={faEnvelope} />
 									</span>
 								</div>
 							</div>
@@ -80,23 +111,37 @@ export default function Login() {
 									</span>
 								</div>
 							</div>
+							<div className="field">
+								<label className="label">Retype Password</label>
+								<div className="control has-icons-left">
+									<input
+										value={repassword}
+										onChange={e => setRepassword(e.target.value)}
+										className="input"
+										type="password"
+									/>
+									<span className="icon is-small is-left">
+										<FontAwesomeIcon icon={faLock} />
+									</span>
+								</div>
+							</div>
 							<div className="field is-grouped">
 								<div className="control">
 									<button
 										type="submit"
 										className={`button is-primary ${loading ? 'is-loading' : ''}`}
 									>
-										Login
+										Register
 									</button>
 								</div>
 							</div>
-							{error && (
-								<div className="notification is-danger">
+							{status && (
+								<div className={`notification is-${status.type}`}>
 									<button
 										className="delete"
-										onClick={() => setError(null)}
+										onClick={() => setStatus(null)}
 									></button>
-									{error}
+									{status.message}
 								</div>
 							)}
 						</div>
