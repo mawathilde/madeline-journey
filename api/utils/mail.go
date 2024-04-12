@@ -2,43 +2,50 @@ package utils
 
 import (
 	"bytes"
-	"log"
+	"html/template"
 	"net/smtp"
 	"os"
 )
 
-// Mail represents a email request
-type Mail struct {
-	From    string
-	To      []string
-	Subject string
-	Body    string
+// Request struct
+type Request struct {
+	from    string
+	to      []string
+	subject string
+	body    string
 }
 
-func SendMail(mail Mail) {
-	// Connect to the remote SMTP server.
-	c, err := smtp.Dial(os.Getenv("MAILSERVER_HOST"))
+func NewRequest(to []string, subject, body string) *Request {
+	return &Request{
+		to:      to,
+		subject: subject,
+		body:    body,
+	}
+}
+
+func (r *Request) SendEmail() (bool, error) {
+	mime := "MIME-version: 1.0;\ncharset=\"UTF-8\";\n\n"
+	subject := "Subject: " + r.subject + "!\n"
+	msg := []byte(subject + mime + "\n" + r.body)
+
+	addr := os.Getenv("MAILSERVER_HOST")
+
+	if err := smtp.SendMail(addr, nil, "noreply@madeline-journey.game", r.to, msg); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (r *Request) ParseTemplate(templateFileName string, data interface{}) error {
+	t, err := template.ParseFiles(templateFileName)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer c.Close()
-	// Set the sender and recipient.
-	c.Mail(mail.From)
-	c.Rcpt(mail.To[0])
-	// Send the email body.
-	wc, err := c.Data()
-	if err != nil {
-		log.Fatal(err)
+	buf := new(bytes.Buffer)
+	if err = t.Execute(buf, data); err != nil {
+		return err
 	}
-	defer wc.Close()
-
-	// Subject and body of the email
-	buf := bytes.NewBufferString("Subject: " + mail.Subject)
-	buf.WriteString("\r\n\r\n")
-	buf.WriteString(mail.Body)
-
-	if _, err = buf.WriteTo(wc); err != nil {
-		log.Fatal(err)
-	}
-
+	r.body = buf.String()
+	return nil
 }

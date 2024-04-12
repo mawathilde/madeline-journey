@@ -1,0 +1,5 @@
+Hello {{.Username}}
+
+Your account has been created. Please verify your email address by clicking the link below.
+
+{{.VerifyURL}}

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"madeline-journey/api/db"
 	"madeline-journey/api/models"
 	"madeline-journey/api/utils"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -60,9 +62,10 @@ func Register(c *gin.Context) {
 
 	// Create the user
 	user := models.User{
-		Username: body.Username,
-		Email:    body.Email,
-		Password: string(hash),
+		Username:          body.Username,
+		Email:             body.Email,
+		Password:          string(hash),
+		VerificationToken: uuid.New().String(),
 	}
 
 	result := db.DB.Create(&user)
@@ -72,8 +75,24 @@ func Register(c *gin.Context) {
 			"error": "Username or email already exists.",
 		})
 	} else {
-		// Respond
-		c.JSON(http.StatusOK, gin.H{"message": "User created, please login."})
+
+		mailData := struct {
+			Username  string
+			VerifyURL string
+		}{
+			Username:  user.Username,
+			VerifyURL: fmt.Sprintf("http://localhost:8080/verify/%s", user.VerificationToken),
+		}
+
+		re := utils.NewRequest([]string{user.Email}, "Madeline's Journey - Verify your account", "")
+		if err := re.ParseTemplate("templates/mail/verify_email.txt", mailData); err == nil {
+			ok, _ := re.SendEmail()
+			fmt.Println(ok)
+		} else {
+			fmt.Println(err)
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "User created."})
 	}
 }
 
