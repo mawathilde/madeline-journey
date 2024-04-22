@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Verify from './pages/Verify';
 
 import { AuthProvider } from './components/AuthContext';
 
@@ -18,12 +19,15 @@ root.render(
 	<AuthProvider>
 		<BrowserRouter>
 			<Navbar />
-			<Routes>
-				<Route path="/" element={<Home />} />
+			<div className="hero is-fullheight">
+				<Routes>
+					<Route path="/" element={<Home />} />
 
-				<Route path="/login" element={<Login />} />
-				<Route path="/register" element={<Register />} />
-			</Routes>
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
+					<Route path="/verify/:token" element={<Verify />} />
+				</Routes>
+			</div>
 			<Footer />
 		</BrowserRouter>
 	</AuthProvider>

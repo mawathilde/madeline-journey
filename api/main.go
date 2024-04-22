@@ -37,6 +37,7 @@ func main() {
 
 	r.POST("auth/register", controllers.Register)
 	r.POST("auth/login", controllers.Login)
+	r.POST("auth/verify", controllers.Verify)
 
 	api.GET("auth/validate", middleware.RequireAuth, controllers.Validate)
 

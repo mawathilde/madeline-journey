@@ -45,7 +45,7 @@ export default function Login() {
 			})
 			.catch(error => {
 				if (error.response.data) {
-					setStatus({ type: 'danger', message: error.response.data.error });
+					setStatus({ type: 'danger', message: error.response.data.message });
 				} else {
 					setStatus({
 						type: 'danger',

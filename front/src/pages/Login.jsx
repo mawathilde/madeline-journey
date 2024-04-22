@@ -29,7 +29,7 @@ export default function Login() {
 			})
 			.catch(error => {
 				if (error.response.data) {
-					setError(error.response.data.error);
+					setError(error.response.data.message);
 				} else {
 					setError(
 						'An error occurred. Please check your connection and try again.'

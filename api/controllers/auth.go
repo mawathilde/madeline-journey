@@ -23,29 +23,25 @@ func Register(c *gin.Context) {
 	}
 
 	if c.Bind(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+		c.JSON(http.StatusBadRequest, models.Response{Message: "Failed to read body"})
 
 		return
 	}
 
 	// check if the body is valid
 	if body.Username == "" || body.Email == "" || body.Password == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid body",
-		})
+		c.JSON(http.StatusBadRequest, models.Response{Message: "Invalid body"})
 		return
 	}
 	if !strings.Contains(body.Email, "@") {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid email",
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Invalid email",
 		})
 		return
 	}
 	if len(body.Password) < 6 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Password must be at least 6 characters",
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Password must be at least 6 characters",
 		})
 		return
 	}
@@ -54,8 +50,8 @@ func Register(c *gin.Context) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Internal error. Failed to hash password.",
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Internal error. Failed to hash password.",
 		})
 		return
 	}
@@ -71,8 +67,8 @@ func Register(c *gin.Context) {
 	result := db.DB.Create(&user)
 
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Username or email already exists.",
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Username or email already exists.",
 		})
 	} else {
 
@@ -92,7 +88,7 @@ func Register(c *gin.Context) {
 			fmt.Println(err)
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "User created."})
+		c.JSON(http.StatusOK, models.Response{Message: "User created."})
 	}
 }
 
@@ -101,8 +97,8 @@ func Login(c *gin.Context) {
 	var loginRequest models.LoginRequest
 
 	if c.Bind(&loginRequest) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Failed to read body",
 		})
 
 		return
@@ -114,8 +110,8 @@ func Login(c *gin.Context) {
 	db.DB.First(&user, "username = ?", loginRequest.Username)
 
 	if user.ID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid username or password",
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Invalid username or password",
 		})
 		return
 	}
@@ -124,15 +120,15 @@ func Login(c *gin.Context) {
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid email or password",
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Invalid email or password",
 		})
 		return
 	}
 
 	if !user.IsVerified {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Please verify your email before logging in. You can request a new verification email by clicking 'Verify my email'",
+		c.JSON(http.StatusUnauthorized, models.Response{
+			Message: "Please verify your email before logging in. You can request a new verification email by clicking 'Verify my email'",
 		})
 		return
 	}
@@ -162,5 +158,45 @@ func Validate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "You are authenticated!",
 		"user":    user,
+	})
+}
+
+func Verify(c *gin.Context) {
+	var body struct {
+		Token string `json:"token"`
+	}
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Failed to read body",
+		})
+		return
+	}
+
+	if body.Token == "" {
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Invalid token",
+		})
+		return
+	}
+
+	var user models.User
+
+	db.DB.First(&user, "verification_token = ?", body.Token)
+
+	if user.ID == 0 {
+		c.JSON(http.StatusBadRequest, models.Response{
+			Message: "Invalid token",
+		})
+		return
+	}
+
+	user.IsVerified = true
+	user.VerificationToken = ""
+
+	db.DB.Save(&user)
+
+	c.JSON(http.StatusOK, models.Response{
+		Message: "Email verified",
 	})
 }

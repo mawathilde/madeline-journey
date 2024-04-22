@@ -1,6 +1,6 @@
 export default function Footer() {
 	return (
-		<footer className="footer">
+		<footer className="footer mt-auto">
 			<div className="content has-text-centered">
 				<p>
 					<strong>Madeline's Journey</strong> by{' '}
