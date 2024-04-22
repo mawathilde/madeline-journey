@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react';
-import sass from 'sass'
+import sass from 'sass';
 
 /** @type {import('vite').UserConfig} */
 export default {
@@ -10,8 +10,8 @@ export default {
 	css: {
 		preprocessorOptions: {
 			scss: {
-			implementation: sass,
+				implementation: sass,
 			},
 		},
 	},
-}
+};

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function Home() {
 	return (
-		<section className="hero is-fullheight">
+		<section className="hero is-fullheight header-image">
 			<div className="hero-body">
 				<div className="container has-text-centered">
 					<h1 className="title">Welcome to Madeline's Journey</h1>
