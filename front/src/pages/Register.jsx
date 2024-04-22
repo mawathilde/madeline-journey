@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 import useAuth from '../hooks/useAuth';
 import api from '../utils/api';
+import { useToasts } from '../hooks/useToast';
 
 export default function Login() {
 	const [username, setUsername] = useState('');
@@ -17,14 +18,15 @@ export default function Login() {
 
 	const [status, setStatus] = useState(null);
 
-	const { setToken } = useAuth();
+	const toasts = useToasts();
+
 	const navigate = useNavigate();
 
 	const handleSubmit = event => {
 		event.preventDefault();
 
 		if (password !== repassword) {
-			setError('Passwords do not match');
+			toasts.pushToast({ type: 'danger', message: 'Passwords do not match.' });
 			return;
 		}
 
@@ -33,26 +35,20 @@ export default function Login() {
 		api
 			.post('auth/register', { username, email: mail, password })
 			.then(response => {
-				setUsername('');
-				setMail('');
-				setPassword('');
-				setRepassword('');
-				setStatus({
+				toasts.pushToast({
+					message: 'Account created successfully. Please verify your email.',
 					type: 'success',
-					message:
-						'Account created successfully, an email has been sent to you to verify your account.',
+					duration: 30,
 				});
+				navigate('/login');
 			})
 			.catch(error => {
-				if (error.response.data) {
-					setStatus({ type: 'danger', message: error.response.data.message });
-				} else {
-					setStatus({
-						type: 'danger',
-						message:
-							'An error occurred. Please check your connection and try again.',
-					});
-				}
+				toasts.pushToast({
+					message:
+						error.response.data.message ||
+						'An error occurred, please check your connection and try again.',
+					type: 'danger',
+				});
 			})
 			.finally(() => {
 				setLoading(false);

@@ -1,0 +1,18 @@
+.toast-container {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	max-width: 30rem;
+	z-index: 1000;
+
+	.delete {
+		position: absolute;
+		right: 0.5rem;
+		top: 0.5rem;
+	}
+}
+
+.notification {
+	margin-bottom: 10px;
+	margin-right: 10px;
+}

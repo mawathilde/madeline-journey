@@ -6,16 +6,18 @@ import { useNavigate } from 'react-router-dom';
 
 import useAuth from '../hooks/useAuth';
 import api from '../utils/api';
+import { useToasts } from '../hooks/useToast';
 
 export default function Login() {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 
 	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState(null);
 
 	const { setToken } = useAuth();
 	const navigate = useNavigate();
+
+	const toasts = useToasts();
 
 	const handleSubmit = event => {
 		event.preventDefault();
@@ -25,16 +27,19 @@ export default function Login() {
 			.post('auth/login', { username, password })
 			.then(response => {
 				setToken(response.data.token);
+				toasts.pushToast({
+					message: 'Logged in successfully.',
+					type: 'success',
+				});
 				navigate('/');
 			})
 			.catch(error => {
-				if (error.response.data) {
-					setError(error.response.data.message);
-				} else {
-					setError(
-						'An error occurred. Please check your connection and try again.'
-					);
-				}
+				toasts.pushToast({
+					message:
+						error.response.data.message ||
+						'An error occurred, please check your connection and try again.',
+					type: 'danger',
+				});
 			})
 			.finally(() => {
 				setLoading(false);
@@ -90,15 +95,6 @@ export default function Login() {
 									</button>
 								</div>
 							</div>
-							{error && (
-								<div className="notification is-danger">
-									<button
-										className="delete"
-										onClick={() => setError(null)}
-									></button>
-									{error}
-								</div>
-							)}
 						</div>
 					</div>
 				</div>

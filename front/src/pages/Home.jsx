@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useToasts } from '../hooks/useToast';
 
 export default function Home() {
+	const toast = useToasts();
+
 	return (
 		<section className="hero is-fullheight header-image">
 			<div className="hero-body">
@@ -9,6 +12,7 @@ export default function Home() {
 					<h2 className="subtitle">
 						A tool to help you track your progress in Celeste.
 					</h2>
+
 					<Link to="/login" className="button is-primary mr-4">
 						Login
 					</Link>

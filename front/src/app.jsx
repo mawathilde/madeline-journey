@@ -12,23 +12,26 @@ import Register from './pages/Register';
 import Verify from './pages/Verify';
 
 import { AuthProvider } from './components/AuthContext';
+import { ToastContextProvider } from './components/ToastContext';
 
 const root = createRoot(document.getElementById('root'));
 
 root.render(
 	<AuthProvider>
-		<BrowserRouter>
-			<Navbar />
-			<div className="hero is-fullheight">
-				<Routes>
-					<Route path="/" element={<Home />} />
+		<ToastContextProvider>
+			<BrowserRouter>
+				<Navbar />
+				<div className="hero is-fullheight">
+					<Routes>
+						<Route path="/" element={<Home />} />
 
-					<Route path="/login" element={<Login />} />
-					<Route path="/register" element={<Register />} />
-					<Route path="/verify/:token" element={<Verify />} />
-				</Routes>
-			</div>
-			<Footer />
-		</BrowserRouter>
+						<Route path="/login" element={<Login />} />
+						<Route path="/register" element={<Register />} />
+						<Route path="/verify/:token" element={<Verify />} />
+					</Routes>
+				</div>
+				<Footer />
+			</BrowserRouter>
+		</ToastContextProvider>
 	</AuthProvider>
 );

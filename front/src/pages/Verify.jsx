@@ -1,30 +1,34 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../utils/api';
+import { useToasts } from '../hooks/useToast';
 
 export default function Verify() {
 	const { token } = useParams();
 	const [loading, setLoading] = useState(false);
 
-	const [status, setStatus] = useState(null);
+	const toasts = useToasts();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		setLoading(true);
 		api
 			.post('auth/verify', { token })
 			.then(response => {
-				setStatus({ type: 'success', message: response.data.message });
+				toasts.pushToast({
+					message: 'Account verified successfully, you can now log in.',
+					type: 'success',
+					duration: 10,
+				});
+				navigate('/login');
 			})
 			.catch(error => {
-				if (error.response.data) {
-					setStatus({ type: 'danger', message: error.response.data.message });
-				} else {
-					setStatus({
-						type: 'danger',
-						message:
-							'An error occurred. Please check your connection and try again.',
-					});
-				}
+				toasts.pushToast({
+					type: 'danger',
+					message:
+						"Unable to verify your account. It's possible that the link has expired.",
+				});
+				navigate('/');
 			})
 			.finally(() => {
 				setLoading(false);
@@ -40,15 +44,6 @@ export default function Verify() {
 						<progress className="progress is-small is-primary" max="100">
 							15%
 						</progress>
-					)}
-					{status && (
-						<div className={`notification is-${status.type}`}>
-							<button
-								className="delete"
-								onClick={() => setStatus(null)}
-							></button>
-							{status.message}
-						</div>
 					)}
 				</div>
 			</div>
