@@ -1,9 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useToasts } from '../hooks/useToast';
 
 export default function Home() {
-	const toast = useToasts();
-
 	return (
 		<section className="hero is-fullheight header-image">
 			<div className="hero-body">

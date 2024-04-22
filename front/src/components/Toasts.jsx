@@ -23,8 +23,6 @@ export function Toasts() {
 		);
 		const toast = { ...props, id, timer };
 		setToasts(v => [...v, toast]);
-
-		console.log(toast);
 	};
 
 	const onRemove = toast => {
