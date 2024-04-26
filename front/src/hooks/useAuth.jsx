@@ -2,19 +2,19 @@ import { useContext } from 'react';
 import { AuthContext } from '../components/AuthContext';
 
 export default function useAuth() {
-	const { token, setContextToken, loading } = useContext(AuthContext);
+	const { token, setToken_, loading } = useContext(AuthContext);
 
 	const isAuthenticated = () => {
 		return token !== null;
 	};
 
 	const setToken = token => {
-		setContextToken(token);
+		setToken_(token);
 		localStorage.setItem('token', token);
 	};
 
 	const removeToken = () => {
-		setContextToken(null);
+		setToken_(null);
 		localStorage.removeItem('token');
 	};
 

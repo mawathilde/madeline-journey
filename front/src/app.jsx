@@ -21,15 +21,13 @@ root.render(
 		<ToastContextProvider>
 			<BrowserRouter>
 				<Navbar />
-				<div className="hero is-fullheight">
-					<Routes>
-						<Route path="/" element={<Home />} />
+				<Routes>
+					<Route path="/" element={<Home />} />
 
-						<Route path="/login" element={<Login />} />
-						<Route path="/register" element={<Register />} />
-						<Route path="/verify/:token" element={<Verify />} />
-					</Routes>
-				</div>
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
+					<Route path="/verify/:token" element={<Verify />} />
+				</Routes>
 				<Footer />
 			</BrowserRouter>
 		</ToastContextProvider>
