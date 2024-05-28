@@ -132,17 +132,17 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	db.DB.Where("username = ?", user.Username).First(&userFromDb)
 	assert.Equal(t, user.Username, userFromDb.Username)
 
+	/*
+		VERIFY USER
+	*/
 	type Token struct {
 		Token string `json:"token"`
 	}
 
 	tokenBody := Token{Token: userFromDb.VerificationToken}
 
-	/*
-		VERIFY USER
-	*/
 	jsonValue, _ = json.Marshal(tokenBody)
-	req, _ = http.NewRequest("POST", "/verify", bytes.NewBuffer(jsonValue))
+	req, _ = http.NewRequest("POST", "/auth/verify", bytes.NewBuffer(jsonValue))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp = httptest.NewRecorder()
