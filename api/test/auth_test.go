@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"madeline-journey/api/controllers"
 	"madeline-journey/api/db"
-	"madeline-journey/api/jwtUtils"
 	"madeline-journey/api/middleware"
 	"madeline-journey/api/models"
+	"madeline-journey/api/utils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -34,9 +34,9 @@ func TestNotAuthenticated(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := SetUpRouter()
 
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 	resp := httptest.NewRecorder()
 
 	router.ServeHTTP(resp, req)
@@ -47,9 +47,9 @@ func TestNotAuthenticated(t *testing.T) {
 func TestAuthenticatedWithInvalidToken(t *testing.T) {
 	router := SetUpRouter()
 
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 	req.Header.Set("Authorization", "Bearer invalid_token")
 	resp := httptest.NewRecorder()
 
@@ -61,11 +61,11 @@ func TestAuthenticatedWithInvalidToken(t *testing.T) {
 func TestAuthenticatedWithValidTokenButUserNotFound(t *testing.T) {
 	router := SetUpRouter()
 
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
-	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 
-	token, _ := jwtUtils.GenerateToken(models.User{Email: "madeline@celeste.game", Password: "bird"})
+	token, _ := utils.GenerateToken(models.User{Email: "madeline@celeste.game", Password: "bird"})
 
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp := httptest.NewRecorder()
@@ -78,17 +78,17 @@ func TestAuthenticatedWithValidTokenButUserNotFound(t *testing.T) {
 func TestAuthenticatedWithValidTokenAndUserFound(t *testing.T) {
 	router := SetUpRouter()
 
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
 	user := models.User{Email: gofakeit.Email(), Username: gofakeit.Username(), Password: gofakeit.Password(true, true, true, true, false, 14)}
 
 	db.DB.Create(&user)
 
-	token, _ := jwtUtils.GenerateToken(user)
+	token, _ := utils.GenerateToken(user)
 
 	print(user.ID)
 
-	req, _ := http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ := http.NewRequest("GET", "/auth/validate", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp := httptest.NewRecorder()
 
@@ -105,9 +105,9 @@ func TestAuthenticatedWithValidTokenAndUserFound(t *testing.T) {
 func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	router := SetUpRouter()
 
-	router.POST("/api/auth/register", controllers.Register)
-	router.POST("/api/auth/login", controllers.Login)
-	router.GET("/api/auth/validate", middleware.RequireAuth, controllers.Validate)
+	router.POST("/auth/register", controllers.Register)
+	router.POST("/auth/login", controllers.Login)
+	router.GET("/auth/validate", middleware.RequireAuth, controllers.Validate)
 
 	type RegisterBody struct {
 		Username string `json:"username"`
@@ -121,7 +121,7 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 
 	// Register user
 	jsonValue, _ := json.Marshal(registerBody)
-	req, _ := http.NewRequest("POST", "/api/auth/register", bytes.NewBuffer(jsonValue))
+	req, _ := http.NewRequest("POST", "/auth/register", bytes.NewBuffer(jsonValue))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp := httptest.NewRecorder()
@@ -132,10 +132,34 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	db.DB.Where("username = ?", user.Username).First(&userFromDb)
 	assert.Equal(t, user.Username, userFromDb.Username)
 
+	/*
+		VERIFY USER
+	*/
+	type Token struct {
+		Token string `json:"token"`
+	}
+
+	tokenBody := Token{Token: userFromDb.VerificationToken}
+
+	jsonValue, _ = json.Marshal(tokenBody)
+	req, _ = http.NewRequest("POST", "/auth/verify", bytes.NewBuffer(jsonValue))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp = httptest.NewRecorder()
+	router.ServeHTTP(resp, req)
+
+	assert.Equal(t, http.StatusOK, resp.Code)
+	assert.True(t, userFromDb.IsVerified)
+
+	/*
+		LOGIN
+	*/
+
 	loginRequest := models.LoginRequest{Username: user.Username, Password: user.Password}
 	jsonValue, _ = json.Marshal(loginRequest)
+
 	// Login user
-	req, _ = http.NewRequest("POST", "/api/auth/login", bytes.NewBuffer(jsonValue))
+	req, _ = http.NewRequest("POST", "/auth/login", bytes.NewBuffer(jsonValue))
 	req.Header.Set("Content-Type", "application/json")
 
 	resp = httptest.NewRecorder()
@@ -147,12 +171,12 @@ func TestFullAuthentificationFlowWithCookie(t *testing.T) {
 	assert.NotEmpty(t, tokenResponse.Token)
 
 	// Validate token locally
-	token, err := jwtUtils.ParseToken(tokenResponse.Token)
+	token, err := utils.ParseToken(tokenResponse.Token)
 	assert.Nil(t, err)
 	assert.NotNil(t, token)
 
 	// Validate user
-	req, _ = http.NewRequest("GET", "/api/auth/validate", nil)
+	req, _ = http.NewRequest("GET", "/auth/validate", nil)
 	req.Header.Set("Cookie", resp.Header().Get("Set-Cookie")) // Copy cookie from login response
 
 	resp = httptest.NewRecorder()
